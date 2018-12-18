@@ -45,21 +45,26 @@ def task2(graph, num_workers=5, delay=60):
     result = ''
     time = 0
     workers = np.zeros(num_workers, dtype=int)
+    tasks = np.zeros(num_workers, dtype=str)
     while(len(result) < n or workers.sum() > 0):
-        #print("%d\t%d\t%d\t%d\t%d\t%d\t%s" % (time, workers[0], workers[1], workers[2], workers[3], workers[4], result))
-        print("%d\t%d\t%d\t%s" % (time, workers[0], workers[1], result))
         # TODO: Only add avail[0] to result when worker is FINISHED working on it (workload has
         # gone to zero). If not, other workers start too early. Also, allow worker to start working
         # on new letter in the same timestep that they went from workload 1 to 0... 
         avail = available_steps(graph)
-        for w, worker in enumerate(workers): 
-            if worker == 0 and avail:
-                workers[w] += workload(avail[0], delay)
-                result += avail[0]
-                del graph[avail[0]]
-                del avail[0]
-            if worker > 0:
-                workers[w] -= 1
+        print(avail)
+        for i, (worker, task) in enumerate(zip(workers, tasks)): 
+            print("worker %d" % i)
+            if task == '' and avail:
+                tasks[i] = avail[0]
+                workers[i] += workload(tasks[i], delay)
+            if worker > 1:
+                workers[i] -= 1
+            elif worker == 1:
+                workers[i] = 0
+                result += tasks[i]
+                del graph[tasks[i]]
+                tasks[i] = ''
+        print("%d\t%s (%d)\t%s (%d)\t%s" % (time, tasks[0], workers[0], tasks[1], workers[1], result))
         time += 1
 
     return time
