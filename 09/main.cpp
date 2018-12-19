@@ -47,5 +47,3 @@ int main(int argc, char* argv[])
     }
     cout << *max_element(scores, scores + num_players) << endl; 
 }
-
-// 18446462602351721784
