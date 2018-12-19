@@ -1,123 +1,156 @@
-from enum import Enum
 import numpy as np
 import sys
 
 
-class Direction(Enum):
-    UP = 0
-    LEFT = 1
-    DOWN = 2
-    RIGHT = 3
-    STRAIGHT = 4
+DIRSYMS  = ['^', '<', 'v', '>']
 
 
-dirsyms = {Direction.UP: '^', Direction.LEFT: '<', Direction.DOWN: 'v', Direction.RIGHT: '>'}
+class State(object):
+    def __init__(self, grid, carts):
+        self.grid = grid
+        self.carts = carts
+
+
+    def __str__(self):
+        # Add cart symbol to grid before printing
+        backup_symbols = [''] * len(carts)
+        for c, cart in enumerate(self.carts):
+            backup_symbols[c] = self.grid[tuple(cart.position)]
+            self.grid[tuple(cart.position)] = cart.direction
+
+        ret = ""
+        for l, line in enumerate(self.grid): 
+            for c, char in enumerate(line):
+                ret += char
+            ret += "\n"
+        ret += "\n"
+
+        # Remove cart symbols from grid again
+        for c, cart in enumerate(self.carts):
+            self.grid[tuple(cart.position)] = backup_symbols[c]
+        return ret
+
+
+    def move(self, cart_index):
+        cart = self.carts[cart_index]
+        new_pos = cart.position[:]
+        # Find out what new position is 
+        if cart.direction == '^':
+            new_pos[0] -= 1
+        elif cart.direction == 'v':
+            new_pos[0] += 1
+        elif cart.direction == '<':
+            new_pos[1] -= 1
+        elif cart.direction == '>':
+            new_pos[1] += 1
+
+        # Was there already a different cart there? 
+        for other_cart in self.carts:
+            if other_cart.position == new_pos:
+                # CRASH
+                neighbours_in_array = cart_index - carts.index(other_cart) == 1
+                carts.remove(other_cart)
+                carts.remove(cart)
+                return [new_pos, neighbours_in_array]
+
+        cart.position = new_pos
+
+        # What did we move to?
+        covering = self.grid[tuple(cart.position)]
+        if covering == '\\':
+            # Corner
+            if cart.direction == '^':
+                cart.direction = '<'
+            elif cart.direction == '<':
+                cart.direction = '^'
+            elif cart.direction == 'v':
+                cart.direction = '>'
+            elif cart.direction == '>':
+                cart.direction = 'v'
+        elif covering == '/':
+            # Corner
+            if cart.direction == '^':
+                cart.direction = '>'
+            elif cart.direction == '<': 
+                cart.direction = 'v'
+            elif cart.direction == 'v': 
+                cart.direction = '<'
+            elif cart.direction == '>': 
+                cart.direction = '^'
+        elif covering == '+':
+            # Junction
+            if cart.last_turn == '>': 
+                cart.last_turn = '<'
+                if cart.direction == '>': 
+                    cart.direction = '^'
+                else:
+                    cart.direction = DIRSYMS[DIRSYMS.index(cart.direction) + 1]
+            elif cart.last_turn == '<':
+                cart.last_turn = '|'
+            elif cart.last_turn == '|':
+                cart.last_turn = '>'
+                if cart.direction == '^':
+                    cart.direction = '>'
+                else:
+                    cart.direction = DIRSYMS[DIRSYMS.index(cart.direction) - 1]
+        return [[], False]
+
+
+    def simulate(self, animate=False):
+        step = 1
+        n = len(self.carts)
+        while(n > 1):
+            i = 0
+            self.carts.sort()
+            while(i < len(self.carts)):
+                crash, neighbours = state.move(i)
+                if(crash): 
+                    print("Crash at (%d,%d)" % tuple(crash))
+                    if neighbours: 
+                        i -= 1
+                else: 
+                    i += 1
+            if(animate):
+                print(state)
+            n = len(carts)
+            step += 1
+        if n == 1:
+            return self.carts[0].position
+
+# End of class State
 
 
 class Cart(object):
     def __init__(self, position, direction):
         self.position = position
         self.direction = direction
-        if (self.direction == Direction.UP) or (self.direction == Direction.DOWN):
-            self.covering = '|'
-        elif (self.direction == Direction.LEFT) or (self.direction == Direction.RIGHT):
-            self.covering = '-'
-        else:
-            print("WWAAAA")
-            exit(1)
-        self.last_turn = Direction.RIGHT
+        self.last_turn = '>'
+
+
+    def __str__(self):
+        return str(self.__class__) + ": " + str(self.__dict__)
 
 
     def __lt__(self, other):
         assert self.position != other.position
         if self.position[0] == other.position[0]:
-            return self.position[1] < other.position[1]
+            return self.position[1] <= other.position[1]
         else:
-            return self.position[0] < other.position[0]
+            return self.position[0] <= other.position[0]
 
-    def __str__(self):
-        return str(self.__class__) + ": " + str(self.__dict__)
-
-    def move(self, grid, carts):
-        # Return old position to normal
-        old_pos = self.position
-        old_sym = self.covering
-        grid[old_pos] = old_sym
-
-        new_pos = list(old_pos)
-        # Find out what new position is 
-        if self.direction == Direction.UP:
-            new_pos[0] -= 1
-        elif self.direction == Direction.DOWN: 
-            new_pos[0] += 1
-        elif self.direction == Direction.LEFT: 
-            new_pos[1] -= 1
-        elif self.direction == Direction.RIGHT: 
-            new_pos[1] += 1
-        self.position = tuple(new_pos)
-
-        # What did we move to?
-        self.covering = grid[self.position]
-        if self.covering in ['^', '<', 'v', '>']: 
-            # CRASH
-            for cart in carts:
-                if (cart.position == self.position) & (cart.direction != self.direction):
-                    grid[self.position] = cart.covering
-                    carts.remove(cart)
-                    break
-            return True
-        elif self.covering == '\\':
-            # Corner
-            if self.direction == Direction.UP:
-                self.direction = Direction.LEFT
-            elif self.direction == Direction.LEFT: 
-                self.direction = Direction.UP
-            elif self.direction == Direction.DOWN: 
-                self.direction = Direction.RIGHT
-            elif self.direction == Direction.RIGHT: 
-                self.direction = Direction.DOWN
-        elif self.covering == '/':
-            # Corner
-            if self.direction == Direction.UP:
-                self.direction = Direction.RIGHT
-            elif self.direction == Direction.LEFT: 
-                self.direction = Direction.DOWN
-            elif self.direction == Direction.DOWN: 
-                self.direction = Direction.LEFT
-            elif self.direction == Direction.RIGHT: 
-                self.direction = Direction.UP
-        elif self.covering == '+':
-            # Junction
-            if self.last_turn == Direction.RIGHT: 
-                self.last_turn = Direction.LEFT
-                if self.direction == Direction.RIGHT: 
-                    self.direction = Direction.UP
-                else:
-                    self.direction = Direction(self.direction.value + 1)
-            elif self.last_turn == Direction.LEFT:
-                self.last_turn = Direction.STRAIGHT
-            elif self.last_turn == Direction.STRAIGHT: 
-                self.last_turn = Direction.RIGHT
-                if self.direction == Direction.UP:
-                    self.direction = Direction.RIGHT
-                else:
-                    self.direction = Direction(self.direction.value - 1)
-
-        # Place self on grid
-        grid[self.position] = dirsyms[self.direction]
-
+# End of class Cart
 
 
 def get_input():
-    with open("input_test2") as inputfile: 
+    with open("input") as input_test3file: 
         rows = 0
         cols = 0
-        for line in inputfile: 
+        for line in input_test3file: 
             rows += 1
             cols = max(cols, len(line))
     data = np.zeros((rows, cols-1), dtype=str)
-    with open("input_test2") as inputfile:
-        for i, line in enumerate(inputfile): 
+    with open("input") as input_test3file:
+        for i, line in enumerate(input_test3file): 
             for j, char in enumerate(line): 
                 if j == cols-1:
                     continue
@@ -125,52 +158,23 @@ def get_input():
     return data
 
 
-def display(grid):
-    sys.stdout.flush()
-    for line in grid: 
-        for char in line:
-            print(char, end='')
-        print()
-    print()
-
-
 def find_carts(grid):
     carts = []
     for (i, j), point in np.ndenumerate(grid):
-        if point == '^':
-            carts.append(Cart(position=(i,j), direction=Direction.UP))
-        elif point == 'v': 
-            carts.append(Cart(position=(i,j), direction=Direction.DOWN))
-        elif point == '<': 
-            carts.append(Cart(position=(i,j), direction=Direction.LEFT))
-        elif point == '>': 
-            carts.append(Cart(position=(i,j), direction=Direction.RIGHT))
+        if point in DIRSYMS:
+            carts.append(Cart(position=[i,j], direction=point))
+            if point in ['v', '^']:
+                grid[i,j] = '|'
+            else:
+                grid[i,j] = '-'
     return carts
 
 
-def find_crash(grid, carts):
-    step = 1
-    n = len(carts)
-    while(n > 1 and step < 10):
-        i = 0
-        while(i < len(carts)):
-            carts.sort()
-            crash = carts[i].move(grid, carts)
-            if(crash): 
-                print("Crash! Removed two carts. ")
-                carts.remove(carts[i])
-            else: 
-                i += 1
-            display(grid)
-        n = len(carts)
-        print("After step ", step, ", ", n, " carts remaining")
-        display(grid)
-        step += 1
-    return carts[0].position
-
-
 if __name__ == "__main__":
+    animate = False
     grid = get_input()
     carts = find_carts(grid)
-    display(grid)
-    print(find_crash(grid, carts))
+    state = State(grid, carts)
+    if(animate): 
+        print(state)
+    print(state.simulate(animate))

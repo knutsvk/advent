@@ -32,6 +32,7 @@ def task1(graph):
     while(len(result) < n):
         next_step = available_steps(graph)[0]
         result += next_step
+        print(available_steps(graph), result)
         del graph[next_step]
     return result
 
@@ -45,36 +46,51 @@ def task2(graph, num_workers=5, delay=60):
     result = ''
     time = 0
     workers = np.zeros(num_workers, dtype=int)
+    avail = available_steps(graph)
     tasks = np.zeros(num_workers, dtype=str)
     while(len(result) < n or workers.sum() > 0):
-        # TODO: Only add avail[0] to result when worker is FINISHED working on it (workload has
-        # gone to zero). If not, other workers start too early. Also, allow worker to start working
-        # on new letter in the same timestep that they went from workload 1 to 0... 
-        avail = available_steps(graph)
-        print(avail)
-        for i, (worker, task) in enumerate(zip(workers, tasks)): 
-            print("worker %d" % i)
-            if task == '' and avail:
-                tasks[i] = avail[0]
-                workers[i] += workload(tasks[i], delay)
-            if worker > 1:
-                workers[i] -= 1
-            elif worker == 1:
+        for i in range(len(workers)): 
+            avail.sort()
+            if workers[i] == 1:
                 workers[i] = 0
                 result += tasks[i]
                 del graph[tasks[i]]
                 tasks[i] = ''
-        print("%d\t%s (%d)\t%s (%d)\t%s" % (time, tasks[0], workers[0], tasks[1], workers[1], result))
+                avail = available_steps(graph)
+                j = 0
+                while j < len(avail):
+                    if avail[j] in tasks:
+                        del avail[j]
+                    else:
+                        j += 1
+            elif workers[i] > 1:
+                workers[i] -= 1
+            if tasks[i] == '' and avail:
+                tasks[i] = avail[0]
+                del avail[0]
+                workers[i] += workload(tasks[i], delay)
+        if num_workers == 2: 
+            print("%d\t%s (%d)\t%s (%d)\t%s" % (time, 
+                tasks[0], workers[0], 
+                tasks[1], workers[1],
+                result))
+        else:
+            print("%d\t%s (%d)\t%s (%d)\t%s (%d)\t%s (%d)\t%s (%d)\t%s\t%s" % (time, 
+                tasks[0], workers[0], 
+                tasks[1], workers[1],
+                tasks[2], workers[2], 
+                tasks[3], workers[3],
+                tasks[4], workers[4], 
+                result, available_steps(graph)))
         time += 1
 
-    return time
+    return time-1
         
 
 if __name__ == "__main__":
-    data = np.loadtxt("input_test", dtype=str)
+    data = np.loadtxt("input", dtype=str)
     data = np.array([data[:,1], data[:,7]]).T
     graph = connect_arcs(data)
     print(task1(graph))
     graph = connect_arcs(data)
-    print(task2(graph, num_workers=2, delay=0))
-    # BHRTWCYSELPUVZAOIJKGMFQDXN
+    print(task2(graph, num_workers=5, delay=60))
