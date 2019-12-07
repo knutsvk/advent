@@ -4,17 +4,14 @@
 
 using namespace std;
 
-vector<int> comma_separated(string filename) 
-{
+vector<int> comma_separated(string filename) {
     vector<int> data;
     ifstream infile (filename);
     string line;
-    while (getline(infile, line)) 
-    {
+    while (getline(infile, line)) {
         stringstream linestream(line);
         string value;
-        while (getline(linestream, value, ',')) 
-        {
+        while (getline(linestream, value, ',')) {
             data.push_back(stoi(value));
         }
     }
