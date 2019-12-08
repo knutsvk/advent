@@ -7,8 +7,9 @@ int task1(vector<int> program) {
     program[1] = 12;
     program[2] = 2;
     Intcode intcode(program);
-    while (not intcode.isCompleted()) {
-        intcode.run();
+    int dummy = 0;
+    while (intcode.getStatus() != Status::Finished) {
+        intcode.run(dummy);
     }
     return intcode[0];
 }
@@ -20,8 +21,9 @@ int task2(vector<int> initial_state, int target_output) {
             memory[1] = noun;
             memory[2] = verb;
             Intcode intcode(memory);
-            while (not intcode.isCompleted()) {
-                intcode.run();
+            int dummy = 0;
+            while (intcode.getStatus() != Status::Finished) {
+                intcode.run(dummy);
             }
             if (intcode[0] == target_output) return 100 * noun + verb;
         }

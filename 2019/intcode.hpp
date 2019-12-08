@@ -18,17 +18,24 @@ enum ParameterMode {
     Immediate = 1
 };
 
+enum Status {
+    Finished = 0,
+    ReadyToGo = 1,
+    WaitingForInput = 2,
+    Error = 3
+};
+
 int decipherParameterMode(int parameter_mode, int pos, const std::vector<int> &program);
 
 class Intcode {
     private:
         std::vector<int> program;
         int pos;
-        bool completed;
+        int status;
     public:
         Intcode(const std::vector<int> &_program);
-        int run();
-        bool isCompleted() {return completed;}
+        void run(int &inout);
+        int getStatus() {return status;}
         int operator [](int i) const {return program[i];}
         int &operator [](int i) {return program[i];}
 };

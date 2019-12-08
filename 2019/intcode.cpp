@@ -21,10 +21,10 @@ int decipherParameterMode(int parameter_mode, int pos, const vector<int> &progra
 Intcode::Intcode(const vector<int> &_program) {
     program = _program;
     pos = 0;
-    completed = false;
+    status = Status::ReadyToGo;
 }
 
-int Intcode::run() {
+void Intcode::run(int &inout) {
     while (program[pos] != Opcode::Halt) {
         string opcode = to_string(program[pos]);
         while (opcode.size() < 5) {
@@ -47,15 +47,21 @@ int Intcode::run() {
                 pos += 4;
                 break;
             case Opcode::Input: 
-                address = program[pos + 1];
-                cout << "Enter input: ";
-                cin >> program[address];
-                pos += 2;
+                if (status == Status::WaitingForInput) {
+                    address = program[pos + 1];
+                    program[address] = inout;
+                    pos += 2;
+                    status = Status::ReadyToGo;
+                } else {
+                    status = Status::WaitingForInput;
+                    return;
+                }
                 break;
             case Opcode::Output: 
                 address = decipherParameterMode(stoi(opcode.substr(2,1)), pos + 1, program);
                 pos += 2;
-                return address;
+                inout = address;
+                return;
             case Opcode::JumpIfTrue:
                 x = decipherParameterMode(stoi(opcode.substr(2,1)), pos + 1, program);
                 y = decipherParameterMode(stoi(opcode.substr(1,1)), pos + 2, program);
@@ -82,9 +88,10 @@ int Intcode::run() {
                 break;
             default:
                 cout << "Error: unknown opcode: " << stoi(opcode.substr(3)) << endl;
-                return 1;
+                status = Status::Error;
+                return;
         }
     }
-    completed = true;
-    return 0;
+    status = Status::Finished;
+    return;
 }
