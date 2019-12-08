@@ -19,5 +19,5 @@ enum ParameterMode {
 };
 
 int decipherParameterMode(int parameter_mode, int pos, const std::vector<int> &program);
-int intcode(std::vector<int> &program);
+int intcode(std::vector<int> &program, std::vector<int> inputs = std::vector<int>(2, -1), bool verbose=true);
 

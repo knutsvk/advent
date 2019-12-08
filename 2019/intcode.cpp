@@ -18,8 +18,10 @@ int decipherParameterMode(int parameter_mode, int pos, const vector<int> &progra
     }
 }
 
-int intcode(vector<int> &program) {
+int intcode(vector<int> &program, vector<int> inputs, bool verbose) {
     int pos = 0;
+    int input_pos = 0;
+    int final_output;
     while (program[pos] != Opcode::Halt) {
         string opcode = to_string(program[pos]);
         while (opcode.size() < 5) {
@@ -43,13 +45,19 @@ int intcode(vector<int> &program) {
                 break;
             case Opcode::Input: 
                 address = program[pos + 1];
-                cout << "Enter input: ";
-                cin >> program[address];
+                if (inputs[input_pos] == -1) {
+                    cout << "Enter input: ";
+                    cin >> program[address];
+                } else {
+                    program[address] = inputs[input_pos];
+                    input_pos++;
+                }
                 pos += 2;
                 break;
             case Opcode::Output: 
                 address = decipherParameterMode(stoi(opcode.substr(2,1)), pos + 1, program);
-                cout << address << endl;
+                if (verbose) cout << address << endl;
+                final_output = address;
                 pos += 2;
                 break;
             case Opcode::JumpIfTrue:
@@ -81,5 +89,5 @@ int intcode(vector<int> &program) {
                 return 1;
         }
     }
-    return 0;
+    return final_output;
 }
