@@ -3,7 +3,8 @@
 #include "read_input.hpp"
 using namespace std;
 
-int task1(vector<llint> input_data){
+int main(int argc, char *argv[]) {
+    vector<llint> input_data = comma_separated("input9");
     Intcode intcode(input_data);
     llint inout = 0;
     while (intcode.getStatus() != Status::Finished) {
@@ -22,12 +23,5 @@ int task1(vector<llint> input_data){
                 return 1;
         }
     }
-    return 0;
-}
-
-int main(int argc, char *argv[]) {
-    vector<llint> input_data = comma_separated("input9");
-    cout << "Task 1: " << endl;
-    task1(input_data);
     return 0;
 }
