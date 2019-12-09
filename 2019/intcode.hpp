@@ -30,17 +30,21 @@ enum Status {
 };
 
 class Intcode {
+
     private:
         std::vector<llint> program;
         llint status;
         llint relative_base;
         llint pos;
+
     public:
         Intcode(const std::vector<llint> &_program);
         llint operator [](llint i) const {return program[i];}
         llint &operator [](llint i) {return program[i];}
         llint getStatus() {return status;}
-        llint decipherParameterMode(llint parameter_mode, llint pos);
+        llint getAddress(llint parameter_mode, llint pos);
+        llint getParameter(llint parameter_mode, llint pos);
         void insert(llint address, llint value);
+        llint read(llint address);
         void run(llint &inout);
 };

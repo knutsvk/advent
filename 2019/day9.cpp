@@ -26,7 +26,7 @@ int task1(vector<llint> input_data){
 }
 
 int main(int argc, char *argv[]) {
-    vector<llint> input_data = comma_separated("input9_test");
+    vector<llint> input_data = comma_separated("input9");
     cout << "Task 1: " << endl;
     task1(input_data);
     return 0;

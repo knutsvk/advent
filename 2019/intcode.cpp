@@ -6,20 +6,6 @@
 
 using namespace std;
 
-llint Intcode::decipherParameterMode(llint parameter_mode, llint input) {
-    switch(parameter_mode) { 
-        case ParameterMode::Position:
-            return program[input];
-        case ParameterMode::Immediate: 
-            return input;
-        case ParameterMode::Relative: 
-            return program[relative_base + input];
-        default:
-            cout << "Error: unknown parameter mode " << parameter_mode << endl;
-            return 1;
-    }
-}
-
 Intcode::Intcode(const vector<llint> &_program) {
     program = _program;
     status = Status::ReadyToGo;
@@ -32,34 +18,69 @@ void Intcode::insert(llint address, llint value) {
         program.resize(address + 1, 0);
     }
     program[address] = value;
+
     return;
 }
 
+llint Intcode::read(llint address) {
+    if (program.size() < address + 1) {
+        program.resize(address + 1, 0);
+    }
+
+    return program[address];
+}
+
+llint Intcode::getAddress(llint parameter_mode, llint input) {
+    switch(parameter_mode) { 
+
+        case ParameterMode::Position:
+            return input;
+
+        case ParameterMode::Relative: 
+            return relative_base + input;
+
+        default:
+            cout << "Error: unknown parameter mode for address:" << parameter_mode << endl;
+            return 1;
+    }
+}
+
+llint Intcode::getParameter(llint parameter_mode, llint input) {
+    if (parameter_mode == ParameterMode::Immediate)
+        return input;
+    return read(getAddress(parameter_mode, input));
+}
+
 void Intcode::run(llint &inout) {
-    while (program[pos] != Opcode::Halt) {
-        string opcode = to_string(program[pos]);
+    while (read(pos) != Opcode::Halt) {
+        string opcode = to_string(read(pos));
+
         while (opcode.size() < 5) {
             opcode.insert(0, "0");
         }
+
         switch (stoll(opcode.substr(3))) {
             llint x, y, address;
+
             case Opcode::Add: 
-                x = decipherParameterMode(stoll(opcode.substr(2,1)), program[pos + 1]);
-                y = decipherParameterMode(stoll(opcode.substr(1,1)), program[pos + 2]);
-                address = program[pos + 3];
+                x = getParameter(stoll(opcode.substr(2,1)), read(pos + 1));
+                y = getParameter(stoll(opcode.substr(1,1)), read(pos + 2));
+                address = getAddress(stoll(opcode.substr(0,1)), read(pos + 3));
                 insert(address, x + y);
                 pos += 4;
                 break;
+
             case Opcode::Multiply:
-                x = decipherParameterMode(stoll(opcode.substr(2,1)), program[pos + 1]);
-                y = decipherParameterMode(stoll(opcode.substr(1,1)), program[pos + 2]);
-                address = program[pos + 3];
+                x = getParameter(stoll(opcode.substr(2,1)), read(pos + 1));
+                y = getParameter(stoll(opcode.substr(1,1)), read(pos + 2));
+                address = getAddress(stoll(opcode.substr(0,1)), read(pos + 3));
                 insert(address, x * y);
                 pos += 4;
                 break;
+
             case Opcode::Input: 
                 if (status == Status::WaitingForInput) {
-                    address = program[pos + 1];
+                    address = getAddress(stoll(opcode.substr(2,1)), read(pos + 1));
                     insert(address, inout);
                     pos += 2;
                     status = Status::ReadyToGo;
@@ -68,40 +89,47 @@ void Intcode::run(llint &inout) {
                     return;
                 }
                 break;
+
             case Opcode::Output: 
-                address = decipherParameterMode(stoll(opcode.substr(2,1)), program[pos + 1]);
+                address = getParameter(stoll(opcode.substr(2,1)), read(pos + 1));
                 pos += 2;
                 inout = address;
                 return;
+
             case Opcode::JumpIfTrue:
-                x = decipherParameterMode(stoll(opcode.substr(2,1)), program[pos + 1]);
-                y = decipherParameterMode(stoll(opcode.substr(1,1)), program[pos + 2]);
+                x = getParameter(stoll(opcode.substr(2,1)), read(pos + 1));
+                y = getParameter(stoll(opcode.substr(1,1)), read(pos + 2));
                 pos = x ? y : pos + 3;
                 break;
+
             case Opcode::JumpIfFalse:
-                x = decipherParameterMode(stoll(opcode.substr(2,1)), program[pos + 1]);
-                y = decipherParameterMode(stoll(opcode.substr(1,1)), program[pos + 2]);
+                x = getParameter(stoll(opcode.substr(2,1)), read(pos + 1));
+                y = getParameter(stoll(opcode.substr(1,1)), read(pos + 2));
                 pos = x ? pos + 3 : y;
                 break;
+
             case Opcode::LessThan:
-                x = decipherParameterMode(stoll(opcode.substr(2,1)), program[pos + 1]);
-                y = decipherParameterMode(stoll(opcode.substr(1,1)), program[pos + 2]);
-                address = program[pos + 3];
+                x = getParameter(stoll(opcode.substr(2,1)), read(pos + 1));
+                y = getParameter(stoll(opcode.substr(1,1)), read(pos + 2));
+                address = getAddress(stoll(opcode.substr(0,1)), read(pos + 3));
                 insert(address, x < y ? 1 : 0);
                 pos += 4;
                 break;
+
             case Opcode::Equals:
-                x = decipherParameterMode(stoll(opcode.substr(2,1)), program[pos + 1]);
-                y = decipherParameterMode(stoll(opcode.substr(1,1)), program[pos + 2]);
-                address = program[pos + 3];
+                x = getParameter(stoll(opcode.substr(2,1)), read(pos + 1));
+                y = getParameter(stoll(opcode.substr(1,1)), read(pos + 2));
+                address = getAddress(stoll(opcode.substr(0,1)), read(pos + 3));
                 insert(address, x == y ? 1 : 0);
                 pos += 4;
                 break;
+
             case Opcode::AddToRelativeBase:
-                x = decipherParameterMode(stoll(opcode.substr(2,1)), program[pos + 1]);
+                x = getParameter(stoll(opcode.substr(2,1)), read(pos + 1));
                 relative_base += x;
                 pos += 2;
                 break;
+
             default:
                 cout << "Error: unknown opcode: " << stoll(opcode.substr(3)) << endl;
                 status = Status::Error;
