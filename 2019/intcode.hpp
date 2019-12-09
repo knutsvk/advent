@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 
+typedef long long int llint;
+
 enum Opcode {
     Add = 1,
     Multiply = 2,
@@ -10,12 +12,14 @@ enum Opcode {
     JumpIfFalse = 6, 
     LessThan = 7, 
     Equals = 8,
+    AddToRelativeBase = 9,
     Halt = 99
 };
 
 enum ParameterMode {
     Position = 0,
-    Immediate = 1
+    Immediate = 1,
+    Relative = 2
 };
 
 enum Status {
@@ -25,17 +29,18 @@ enum Status {
     Error = 3
 };
 
-int decipherParameterMode(int parameter_mode, int pos, const std::vector<int> &program);
-
 class Intcode {
     private:
-        std::vector<int> program;
-        int pos;
-        int status;
+        std::vector<llint> program;
+        llint status;
+        llint relative_base;
+        llint pos;
     public:
-        Intcode(const std::vector<int> &_program);
-        void run(int &inout);
-        int getStatus() {return status;}
-        int operator [](int i) const {return program[i];}
-        int &operator [](int i) {return program[i];}
+        Intcode(const std::vector<llint> &_program);
+        llint operator [](llint i) const {return program[i];}
+        llint &operator [](llint i) {return program[i];}
+        llint getStatus() {return status;}
+        llint decipherParameterMode(llint parameter_mode, llint pos);
+        void insert(llint address, llint value);
+        void run(llint &inout);
 };

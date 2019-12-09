@@ -3,9 +3,9 @@
 #include "read_input.hpp"
 using namespace std;
 
-int day5(const vector<int> &input_data, int system_id) {
+llint day5(const vector<llint> &input_data, llint system_id) {
     Intcode intcode(input_data);
-    int inout = 0;
+    llint inout = 0;
     while (intcode.getStatus() != Status::Finished) {
         intcode.run(inout);
         switch (intcode.getStatus()) {
@@ -25,7 +25,7 @@ int day5(const vector<int> &input_data, int system_id) {
 }
 
 int main(int argc, char *argv[]) {
-    vector<int> input_data = comma_separated("input5");
+    vector<llint> input_data = comma_separated("input5");
     cout << "Task 1: " << endl;
     day5(input_data, 1);
     cout << endl;

@@ -3,18 +3,18 @@
 #include "read_input.hpp"
 using namespace std;
 
-vector<vector<int>> getPossiblePhaseSettings(int lo, int hi) {
-    vector<vector<int>> possibilities;
-    for (int i = lo; i < hi; i++) {
-        for (int j = lo; j < hi; j++) {
+vector<vector<llint>> getPossiblePhaseSettings(llint lo, llint hi) {
+    vector<vector<llint>> possibilities;
+    for (llint i = lo; i < hi; i++) {
+        for (llint j = lo; j < hi; j++) {
             if (j == i) continue;
-            for(int k = lo; k < hi; k++) {
+            for(llint k = lo; k < hi; k++) {
                 if (k == i or k == j) continue;
-                for(int l = lo; l < hi; l++) {
+                for(llint l = lo; l < hi; l++) {
                     if (l == i or l == j or l == k) continue;
-                    for(int m = lo; m < hi; m++) {
+                    for(llint m = lo; m < hi; m++) {
                         if (m == i or m == j or m == k or m == l) continue;
-                        vector<int> phase_settings = {i, j, k, l, m};
+                        vector<llint> phase_settings = {i, j, k, l, m};
                         possibilities.push_back(phase_settings);
                     }
                 }
@@ -24,29 +24,29 @@ vector<vector<int>> getPossiblePhaseSettings(int lo, int hi) {
     return possibilities;
 }
 
-int amplifier(vector<int> input_data, int phase_setting, int input_value) {
+llint amplifier(vector<llint> input_data, llint phase_setting, llint input_value) {
     Intcode intcode(input_data);
-    int dummy = 0;
+    llint dummy = 0;
     intcode.run(dummy);
     intcode.run(phase_setting);
     intcode.run(input_value);
     return input_value;
 }
 
-int amplificationCircuit(vector<int> input_data, vector<int> phase_settings) {
-    int input = 0;
+llint amplificationCircuit(vector<llint> input_data, vector<llint> phase_settings) {
+    llint input = 0;
     for(int i = 0; i < 5; i++) {
         input = amplifier(input_data, phase_settings[i], input);
     }
     return input;
 }
 
-int task1(vector<int> input_data){
-    int lo = 0; 
-    int hi = 5;
-    vector<vector<int>> possible_phase_settings = getPossiblePhaseSettings(lo, hi);
-    int best = 0;
-    int current;
+llint task1(vector<llint> input_data){
+    llint lo = 0; 
+    llint hi = 5;
+    vector<vector<llint>> possible_phase_settings = getPossiblePhaseSettings(lo, hi);
+    llint best = 0;
+    llint current;
     for (auto phase_settings : possible_phase_settings) {
         current = amplificationCircuit(input_data, phase_settings);
         if (current > best) best = current;
@@ -54,8 +54,8 @@ int task1(vector<int> input_data){
     return best;
 }
 
-int feedbackLoop(vector<int> input_data, vector<int> phase_settings) {
-    int input = 0;
+llint feedbackLoop(vector<llint> input_data, vector<llint> phase_settings) {
+    llint input = 0;
     vector<Intcode> amplifiers;
     for (int i = 0; i < 5; i++) {
         amplifiers.push_back(Intcode(input_data));
@@ -70,12 +70,12 @@ int feedbackLoop(vector<int> input_data, vector<int> phase_settings) {
     return input;
 }
 
-int task2(vector<int> input_data){
-    int lo = 5; 
-    int hi = 10;
-    vector<vector<int>> possible_phase_settings = getPossiblePhaseSettings(lo, hi);
-    int best = 0;
-    int current;
+llint task2(vector<llint> input_data){
+    llint lo = 5; 
+    llint hi = 10;
+    vector<vector<llint>> possible_phase_settings = getPossiblePhaseSettings(lo, hi);
+    llint best = 0;
+    llint current;
     for (auto phase_settings : possible_phase_settings) {
         current = feedbackLoop(input_data, phase_settings);
         if (current > best) best = current;
@@ -84,7 +84,7 @@ int task2(vector<int> input_data){
 }
 
 int main(int argc, char *argv[]) {
-    vector<int> input_data = comma_separated("input7");
+    vector<llint> input_data = comma_separated("input7");
     cout << "Task 1: " << task1(input_data) << endl;
     cout << "Task 2: " << task2(input_data) << endl;
 }

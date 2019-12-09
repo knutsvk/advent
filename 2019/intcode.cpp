@@ -6,50 +6,61 @@
 
 using namespace std;
 
-int decipherParameterMode(int parameter_mode, int pos, const vector<int> &program) {
+llint Intcode::decipherParameterMode(llint parameter_mode, llint input) {
     switch(parameter_mode) { 
         case ParameterMode::Position:
-            return program[program[pos]];
+            return program[input];
         case ParameterMode::Immediate: 
-            return program[pos];
+            return input;
+        case ParameterMode::Relative: 
+            return program[relative_base + input];
         default:
-            cout << "Error: unknown parameter mode" << endl;
+            cout << "Error: unknown parameter mode " << parameter_mode << endl;
             return 1;
     }
 }
 
-Intcode::Intcode(const vector<int> &_program) {
+Intcode::Intcode(const vector<llint> &_program) {
     program = _program;
-    pos = 0;
     status = Status::ReadyToGo;
+    relative_base = 0;
+    pos = 0;
 }
 
-void Intcode::run(int &inout) {
+void Intcode::insert(llint address, llint value) {
+    if (program.size() < address + 1) {
+        program.resize(address + 1, 0);
+    }
+    program[address] = value;
+    return;
+}
+
+void Intcode::run(llint &inout) {
     while (program[pos] != Opcode::Halt) {
         string opcode = to_string(program[pos]);
         while (opcode.size() < 5) {
             opcode.insert(0, "0");
         }
-        switch (stoi(opcode.substr(3))) {
-            int x, y, address;
+        switch (stoll(opcode.substr(3))) {
+            llint x, y, address;
             case Opcode::Add: 
-                x = decipherParameterMode(stoi(opcode.substr(2,1)), pos + 1, program);
-                y = decipherParameterMode(stoi(opcode.substr(1,1)), pos + 2, program);
+                x = decipherParameterMode(stoll(opcode.substr(2,1)), program[pos + 1]);
+                y = decipherParameterMode(stoll(opcode.substr(1,1)), program[pos + 2]);
                 address = program[pos + 3];
-                program[address] = x + y;
+                insert(address, x + y);
                 pos += 4;
                 break;
             case Opcode::Multiply:
-                x = decipherParameterMode(stoi(opcode.substr(2,1)), pos + 1, program);
-                y = decipherParameterMode(stoi(opcode.substr(1,1)), pos + 2, program);
+                x = decipherParameterMode(stoll(opcode.substr(2,1)), program[pos + 1]);
+                y = decipherParameterMode(stoll(opcode.substr(1,1)), program[pos + 2]);
                 address = program[pos + 3];
-                program[address] = x * y;
+                insert(address, x * y);
                 pos += 4;
                 break;
             case Opcode::Input: 
                 if (status == Status::WaitingForInput) {
                     address = program[pos + 1];
-                    program[address] = inout;
+                    insert(address, inout);
                     pos += 2;
                     status = Status::ReadyToGo;
                 } else {
@@ -58,36 +69,41 @@ void Intcode::run(int &inout) {
                 }
                 break;
             case Opcode::Output: 
-                address = decipherParameterMode(stoi(opcode.substr(2,1)), pos + 1, program);
+                address = decipherParameterMode(stoll(opcode.substr(2,1)), program[pos + 1]);
                 pos += 2;
                 inout = address;
                 return;
             case Opcode::JumpIfTrue:
-                x = decipherParameterMode(stoi(opcode.substr(2,1)), pos + 1, program);
-                y = decipherParameterMode(stoi(opcode.substr(1,1)), pos + 2, program);
+                x = decipherParameterMode(stoll(opcode.substr(2,1)), program[pos + 1]);
+                y = decipherParameterMode(stoll(opcode.substr(1,1)), program[pos + 2]);
                 pos = x ? y : pos + 3;
                 break;
             case Opcode::JumpIfFalse:
-                x = decipherParameterMode(stoi(opcode.substr(2,1)), pos + 1, program);
-                y = decipherParameterMode(stoi(opcode.substr(1,1)), pos + 2, program);
+                x = decipherParameterMode(stoll(opcode.substr(2,1)), program[pos + 1]);
+                y = decipherParameterMode(stoll(opcode.substr(1,1)), program[pos + 2]);
                 pos = x ? pos + 3 : y;
                 break;
             case Opcode::LessThan:
-                x = decipherParameterMode(stoi(opcode.substr(2,1)), pos + 1, program);
-                y = decipherParameterMode(stoi(opcode.substr(1,1)), pos + 2, program);
+                x = decipherParameterMode(stoll(opcode.substr(2,1)), program[pos + 1]);
+                y = decipherParameterMode(stoll(opcode.substr(1,1)), program[pos + 2]);
                 address = program[pos + 3];
-                program[address] = (x < y) ? 1 : 0;
+                insert(address, x < y ? 1 : 0);
                 pos += 4;
                 break;
             case Opcode::Equals:
-                x = decipherParameterMode(stoi(opcode.substr(2,1)), pos + 1, program);
-                y = decipherParameterMode(stoi(opcode.substr(1,1)), pos + 2, program);
+                x = decipherParameterMode(stoll(opcode.substr(2,1)), program[pos + 1]);
+                y = decipherParameterMode(stoll(opcode.substr(1,1)), program[pos + 2]);
                 address = program[pos + 3];
-                program[address] = (x == y) ? 1 : 0;
+                insert(address, x == y ? 1 : 0);
                 pos += 4;
                 break;
+            case Opcode::AddToRelativeBase:
+                x = decipherParameterMode(stoll(opcode.substr(2,1)), program[pos + 1]);
+                relative_base += x;
+                pos += 2;
+                break;
             default:
-                cout << "Error: unknown opcode: " << stoi(opcode.substr(3)) << endl;
+                cout << "Error: unknown opcode: " << stoll(opcode.substr(3)) << endl;
                 status = Status::Error;
                 return;
         }
