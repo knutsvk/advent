@@ -2,12 +2,10 @@ def check_slope(down, right):
     num_trees = 0
     with open("input3") as file:
         lines = file.read().splitlines()
-        for row, line in enumerate(lines):
-            if row % down != 0:
-                continue
-            col = (row // down * right) % len(line)
-            if line[col] == '#':
-                num_trees += 1
+    for row, line in enumerate(lines[::down]):
+        col = (row * right) % len(line)
+        if line[col] == '#':
+            num_trees += 1
     return num_trees
 
 
