@@ -1,4 +1,5 @@
 REQUIRED_ENTRIES = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"]
+EYE_COLORS = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]
 
 
 def is_valid(key, value) -> bool:
@@ -18,11 +19,9 @@ def is_valid(key, value) -> bool:
     if key == "hcl":
         valid = value[0] == "#" and len(value[1:]) == 6
     if key == "ecl":
-        valid = value in ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]
+        valid = value in EYE_COLORS
     if key == "pid":
         valid = len(value) == 9
-    if not valid:
-        print(f"invalid entry {key}:{value}")
     return valid
 
 
