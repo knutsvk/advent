@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include <iostream>
 #include <string>
 
@@ -18,15 +17,12 @@ void Intcode::insert(llint address, llint value) {
         program.resize(address + 1, 0);
     }
     program[address] = value;
-
-    return;
 }
 
 llint Intcode::read(llint address) {
     if (program.size() < address + 1) {
         program.resize(address + 1, 0);
     }
-
     return program[address];
 }
 
@@ -36,7 +32,7 @@ llint Intcode::getAddress(llint parameter_mode, llint input) {
         case ParameterMode::Position:
             return input;
 
-        case ParameterMode::Relative: 
+        case ParameterMode::Relative:
             return relative_base + input;
 
         default:
@@ -62,7 +58,7 @@ void Intcode::run(llint &inout) {
         switch (stoll(opcode.substr(3))) {
             llint x, y, address;
 
-            case Opcode::Add: 
+            case Opcode::Add:
                 x = getParameter(stoll(opcode.substr(2,1)), read(pos + 1));
                 y = getParameter(stoll(opcode.substr(1,1)), read(pos + 2));
                 address = getAddress(stoll(opcode.substr(0,1)), read(pos + 3));
@@ -78,7 +74,7 @@ void Intcode::run(llint &inout) {
                 pos += 4;
                 break;
 
-            case Opcode::Input: 
+            case Opcode::Input:
                 if (status == Status::WaitingForInput) {
                     address = getAddress(stoll(opcode.substr(2,1)), read(pos + 1));
                     insert(address, inout);
@@ -137,5 +133,4 @@ void Intcode::run(llint &inout) {
         }
     }
     status = Status::Finished;
-    return;
 }

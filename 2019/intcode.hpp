@@ -38,7 +38,7 @@ class Intcode {
         llint pos;
 
     public:
-        Intcode(const std::vector<llint> &_program);
+        explicit Intcode(const std::vector<llint> &_program);
         llint operator [](llint i) const {return program[i];}
         llint &operator [](llint i) {return program[i];}
         llint getStatus() {return status;}

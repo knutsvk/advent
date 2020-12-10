@@ -14,7 +14,7 @@ llint task1(vector<llint> program) {
     return intcode[0];
 }
 
-llint task2(vector<llint> initial_state, llint target_output) {
+llint task2(const vector<llint>& initial_state, llint target_output) {
     for (llint noun = 0; noun < 100; noun++) {
         for (llint verb = 0; verb < 100; verb++) {
             vector<llint> memory = initial_state;

@@ -4,7 +4,7 @@
 
 using namespace std;
 
-vector<llint> comma_separated(string filename) {
+vector<llint> comma_separated(const string& filename) {
     vector<llint> data;
     ifstream infile (filename);
     string line;
