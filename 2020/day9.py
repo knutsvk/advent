@@ -7,10 +7,10 @@ with open("input9") as file:
 
 def find_invalid_number():
     for i in range(len(data)):
-        preamble = data[i:i+PREAMBLE_LENGTH]
+        preamble = data[i : i + PREAMBLE_LENGTH]
         preamble_sums = [x + y for x in preamble for y in preamble]
-        if data[i+PREAMBLE_LENGTH] not in preamble_sums:
-            return data[i+PREAMBLE_LENGTH]
+        if data[i + PREAMBLE_LENGTH] not in preamble_sums:
+            return data[i + PREAMBLE_LENGTH]
 
 
 def find_contiguous_range(target):

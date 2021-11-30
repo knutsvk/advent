@@ -7,15 +7,15 @@ class Point(object):
         self.position = position
         self.velocity = velocity
 
-
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
 
-    
     def future_position(self, time):
         x = self.position[0] + time * self.velocity[0]
         y = self.position[1] + time * self.velocity[1]
         return [x, y]
+
+
 # End of class Point
 
 
@@ -30,14 +30,14 @@ def get_input():
     position=<15,  0> velocity=<-2,  0>
     """
     points = []
-    with open("input") as inputfile: 
-        for line in inputfile: 
-            line = line.replace('position', '')
-            line = line.replace('velocity', '')
-            line = line.replace('<', '')
-            line = line.replace('>', '')
-            line = line.replace('=', '')
-            line = line.replace(',', ' ')
+    with open("input") as inputfile:
+        for line in inputfile:
+            line = line.replace("position", "")
+            line = line.replace("velocity", "")
+            line = line.replace("<", "")
+            line = line.replace(">", "")
+            line = line.replace("=", "")
+            line = line.replace(",", " ")
             line = line.split()
             x = int(line[0])
             y = int(line[1])
@@ -62,7 +62,7 @@ if __name__ == "__main__":
                 positions[p] = point.future_position(time)
             print(time, new_entropy)
             plt.close("all")
-            plt.scatter(positions[:,0], positions[:,1])
+            plt.scatter(positions[:, 0], positions[:, 1])
             plt.gca().invert_yaxis()
             plt.show()
             break

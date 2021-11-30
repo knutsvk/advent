@@ -3,10 +3,10 @@ from enum import Enum
 
 
 class Direction(Enum):
-    NORTH = 'N'
-    EAST = 'E'
-    SOUTH = 'S'
-    WEST = 'W'
+    NORTH = "N"
+    EAST = "E"
+    SOUTH = "S"
+    WEST = "W"
 
 
 @dataclass
@@ -58,7 +58,7 @@ class Boat(object):
     def follow_instruction(self, instruction: str) -> None:
         action = instruction[0]
         num = int(instruction[1:])
-        if action in ['N', 'S', 'E', 'W']:
+        if action in ["N", "S", "E", "W"]:
             self.move_waypoint(Direction(action), num)
         elif action == "F":
             self.forward(num)

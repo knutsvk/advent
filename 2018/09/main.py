@@ -6,17 +6,17 @@ if __name__ == "__main__":
     scores = [0] * num_players
     marbles = [0]
     current_pos = 0
-    current_player = '-'
+    current_player = "-"
     step = 0
     while step < last_marble:
         if step % 10000 == 0:
             print(step)
-#        print("%d [%s]\t" % (step, current_player), end="")
-#        for i, marble in enumerate(marbles):
-#            if i == current_pos:
-#                print("(%d)" % marble, end="")
-#            else:
-#                print(" %d " % marble, end="")
+        #        print("%d [%s]\t" % (step, current_player), end="")
+        #        for i, marble in enumerate(marbles):
+        #            if i == current_pos:
+        #                print("(%d)" % marble, end="")
+        #            else:
+        #                print(" %d " % marble, end="")
 
         current_player = step % num_players
         step += 1

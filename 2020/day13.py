@@ -16,4 +16,3 @@ while buses:
             counter *= bus[1]
             buses.remove(bus)
 print(t)
-

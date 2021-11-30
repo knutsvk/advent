@@ -4,7 +4,7 @@ def check_slope(down, right):
         lines = file.read().splitlines()
     for row, line in enumerate(lines[::down]):
         col = (row * right) % len(line)
-        if line[col] == '#':
+        if line[col] == "#":
             num_trees += 1
     return num_trees
 

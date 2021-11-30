@@ -7,7 +7,7 @@ HEIGHT = 6
 
 def task1(image):
     layer_with_fewest_zeros = image[0]
-    for layer in image: 
+    for layer in image:
         if np.count_nonzero(layer) > np.count_nonzero(layer_with_fewest_zeros):
             layer_with_fewest_zeros = layer
     return (layer_with_fewest_zeros == 1).sum() * (layer_with_fewest_zeros == 2).sum()
@@ -15,7 +15,7 @@ def task1(image):
 
 def decode(image):
     decoded_image = np.copy(image[0])
-    for layer in image[1:]: 
+    for layer in image[1:]:
         transparent = decoded_image == 2
         decoded_image[transparent] = layer[transparent]
     return decoded_image
@@ -30,7 +30,7 @@ if __name__ == "__main__":
         for row in range(HEIGHT):
             for col in range(WIDTH):
                 image[layer, row, col] = data[layer * WIDTH * HEIGHT + row * WIDTH + col]
-    print("Task 1: %d" %task1(image))
+    print("Task 1: %d" % task1(image))
     print("Task 2: see plot")
     decoded_image = decode(image)
     plt.imshow(decoded_image)

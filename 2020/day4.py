@@ -27,7 +27,10 @@ def is_valid(key, value) -> bool:
 
 def read_passports():
     with open("input4") as file:
-        passports = [{entry.split(":")[0]: entry.split(":")[1] for entry in passport.split(" ")} for passport in file.read().replace("\n", " ").split("  ")]
+        passports = [
+            {entry.split(":")[0]: entry.split(":")[1] for entry in passport.split(" ")}
+            for passport in file.read().replace("\n", " ").split("  ")
+        ]
     return passports
 
 

@@ -1,6 +1,6 @@
 if __name__ == "__main__":
     with open("input15") as file:
-        bank = {int(x): [i+1] for i, x in enumerate(file.readline().split(","))}
+        bank = {int(x): [i + 1] for i, x in enumerate(file.readline().split(","))}
     spoken = 0
     turn = len(bank)
     prev = list(bank.keys())[-1]
@@ -19,4 +19,3 @@ if __name__ == "__main__":
             bank[spoken] = bank[spoken][-2:]
         prev = spoken
     print(f"turn {turn}: {spoken}")
-

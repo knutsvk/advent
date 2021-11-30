@@ -10,9 +10,9 @@ def run(instructions):
             return False, acc
         previous_instructions.append(line)
         instruction = instructions[line]
-        if instruction[0] == 'acc':
+        if instruction[0] == "acc":
             acc += instruction[1]
-        elif instruction[0] == 'jmp':
+        elif instruction[0] == "jmp":
             line += instruction[1] - 1
         line += 1
     return True, acc
@@ -20,15 +20,15 @@ def run(instructions):
 
 if __name__ == "__main__":
     with open("input8") as file:
-        data = [(line.split(' ')[0], int(line.split(' ')[1])) for line in file.read().splitlines()]
+        data = [(line.split(" ")[0], int(line.split(" ")[1])) for line in file.read().splitlines()]
     print(run(data)[1])
 
     for i, instruction in enumerate(data):
         tmp_data = deepcopy(data)
-        if instruction[0] == 'nop':
-            tmp_data[i] = ('jmp', data[i][1])
-        elif instruction[0] == 'jmp':
-            tmp_data[i] = ('nop', data[i][1])
+        if instruction[0] == "nop":
+            tmp_data[i] = ("jmp", data[i][1])
+        elif instruction[0] == "jmp":
+            tmp_data[i] = ("nop", data[i][1])
         else:
             continue
         result = run(tmp_data)

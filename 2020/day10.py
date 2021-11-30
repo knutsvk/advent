@@ -5,7 +5,7 @@ if __name__ == "__main__":
         adapters = sorted([int(jolt) for jolt in file.read().splitlines()])
     jolts = [0] + adapters + [max(adapters) + 3]
 
-    diffs = np.array([x-y for x,y in zip(jolts[1:], jolts[:-1])])
+    diffs = np.array([x - y for x, y in zip(jolts[1:], jolts[:-1])])
     print(sum(diffs == 1) * sum(diffs == 3))
 
     end_joltages = {0: 1}

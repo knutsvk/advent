@@ -27,7 +27,7 @@ def task2():
             second_pos = int(second_pos)
             special_letter = special_letter[0]
             password = password[:-1]
-            if sum([password[pos-1] == special_letter for pos in [first_pos, second_pos]]) == 1:
+            if sum([password[pos - 1] == special_letter for pos in [first_pos, second_pos]]) == 1:
                 valid_passwords += 1
     print(valid_passwords)
 
