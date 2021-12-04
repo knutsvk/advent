@@ -1,31 +1,23 @@
-with open("example3") as file:
-    xs = [l.strip() for l in file]
-    xs_dec = [int(x, 2) for x in xs]
-g = ""
-e = ""
+import numpy as np
+
+with open("input3") as f:
+    xs = sorted([l.strip() for l in f])
+e = "".join(str(x) for x in [np.median([int(x[i]) for x in xs]).astype(int) for i in range(len(xs[0]))])
+g = "".join(str(int(not int(x))) for x in e)
+print(int(g, 2) * int(e, 2))
+
+os = xs.copy()
 for i in range(len(xs[0])):
-    common = sum(int(x[i]) for x in xs) >= len(xs) / 2
-    g += str(int(not common))
-    e += str(int(common))
-print(g, e)
-g = int(g, 2)
-e = int(e, 2)
-print(f"g: {g}, e: {e}, g * e: {g * e}")
-ys = xs.copy()
-for i in range(len(xs[0])):
-    common = str(int(sum(int(y[i]) for y in ys) >= len(ys) / 2))
-    ys = [y for y in ys if y[i] == common]
-    if len(ys) == 1:
+    common = os[len(os) // 2][i]
+    os = [o for o in os if o[i] == common]
+    if len(os) == 1:
+        o = os[0]
         break
-o = ys[0]
-ys = xs.copy()
+cs = xs.copy()
 for i in range(len(xs[0])):
-    common = str(int(sum(int(y[i]) for y in ys) >= len(ys) / 2))
-    ys = [y for y in ys if y[i] != common]
-    if len(ys) == 1:
+    common = cs[len(cs) // 2][i]
+    cs = [c for c in cs if c[i] != common]
+    if len(cs) == 1:
+        c = cs[0]
         break
-c = ys[0]
-print(o, c)
-o = int(o, 2)
-c = int(c, 2)
-print(f"o: {o}, c: {c}, o * c: {o * c}")
+print(int(o, 2) * int(c, 2))
