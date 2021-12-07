@@ -5,7 +5,13 @@ def get_data(filename):
 
 
 def process(data, f):
-    return min([sum([f(x, i) for x in data]) for i in range(max(data) + 1)])
+    sumf = lambda i: sum([f(x, i) for x in data])
+    lowest = sumf(0)
+    for i in range(1, max(data) + 1):
+        new_sum = sumf(i)
+        if new_sum > lowest:
+            return lowest
+        lowest = new_sum
 
 
 example_data = get_data("example7")
